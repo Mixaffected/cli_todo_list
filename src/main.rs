@@ -24,6 +24,7 @@ fn main() {
         let args = get_args(args);
 
         match args[0].as_str() {
+            "show" => show_todo_entries(&file_manager),
             "add" => add_todo_entry(args, &file_manager),
             "exit" => break,
             "help" => print_help(),
@@ -33,7 +34,17 @@ fn main() {
     }
 }
 
-fn show_todo_entries(args: Vec<String>) {}
+fn show_todo_entries(file_manager: &todo_file_manager::TodoFileManger) {
+    let todo_list = file_manager.read_file();
+    let todo_list = match todo_list {
+        Ok(todo_list) => todo_list,
+        Err(_) => return println!("Something went wrong by reading file!"),
+    };
+
+    for (i, line) in todo_list.lines().enumerate() {
+        println!("{}: {}", i, line);
+    }
+}
 
 fn add_todo_entry(args: Vec<String>, file_manager: &todo_file_manager::TodoFileManger) {
     let mut todo_entry: String = String::new();
