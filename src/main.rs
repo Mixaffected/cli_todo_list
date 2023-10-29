@@ -106,7 +106,6 @@ fn remove_todo_entry(args: Vec<String>, file_manager: &todo_file_manager::TodoFi
         None => return println!("Could not find entry."),
     };
 
-    // somethim goes wrong down here
     let line_count = todo_list_content.clone().lines().count();
     if line_count == 1 {
         todo_list_content.replace_range(
