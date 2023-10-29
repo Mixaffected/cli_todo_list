@@ -1,8 +1,21 @@
-use json;
 use std::io;
+mod todo_file_manager;
 
 fn main() {
+    let file_manager = todo_file_manager::TodoFileManger {
+        path: "todo_list.sav".to_string(),
+    };
     loop {
+        print!(">>> ");
+        let result = io::Write::flush(&mut io::stdout());
+        match result {
+            Ok(_) => {}
+            Err(_) => {
+                println!("Could not flush write buffer!");
+                continue;
+            }
+        }
+
         let mut args = String::new();
         io::stdin()
             .read_line(&mut args)
@@ -10,11 +23,8 @@ fn main() {
 
         let args = get_args(args);
 
-        for arg in &args {
-            println!("{}", arg);
-        }
-
         match args[0].as_str() {
+            "add" => add_todo_entry(args, &file_manager),
             "exit" => break,
             "help" => print_help(),
             "h" => print_help(),
@@ -25,7 +35,34 @@ fn main() {
 
 fn show_todo_entries(args: Vec<String>) {}
 
-fn add_todo_entry(args: Vec<String>) {}
+fn add_todo_entry(args: Vec<String>, file_manager: &todo_file_manager::TodoFileManger) {
+    let mut todo_entry: String = String::new();
+    for (i, arg) in args.iter().enumerate() {
+        if i == 0 {
+            continue;
+        }
+
+        let mut out_arg: String = arg.clone();
+        out_arg.push(' ');
+        todo_entry.push_str(out_arg.as_str());
+    }
+
+    let todo_list_content = file_manager.read_file();
+    let mut todo_list_content = match todo_list_content {
+        Ok(todo_list_content) => todo_list_content,
+        Err(_) => return println!("Could not read file!"),
+    };
+
+    if todo_list_content.lines().count() > 0 {
+        todo_entry.insert_str(0, "\n");
+    }
+    todo_list_content.push_str(&todo_entry);
+    let result = file_manager.write_file(todo_list_content);
+    match result {
+        Ok(_) => return,
+        Err(_) => return println!("Could not add task to list!"),
+    }
+}
 
 fn remove_todo_entry(args: Vec<String>) {}
 
